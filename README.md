@@ -3,6 +3,7 @@
 手机端QPython3的存放存档
 
 ## 项目目录
+
 com.hipipal.qpyplus
 |__scripts3
    |__test  # 测试脚本
@@ -30,8 +31,4 @@ com.hipipal.qpyplus
       |____config.json  # main.py的配置
       |____config2.json  # main2.py的配置
       |_____ ...  # 其他文件
-
-
-- [x] asd
-- [ ] dsa
 
