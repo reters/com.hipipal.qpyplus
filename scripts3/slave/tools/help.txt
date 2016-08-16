@@ -1,0 +1,3 @@
+netstat -ano  | findstr 5037
+
+tasklist /fi "pid eq xxxxx  
