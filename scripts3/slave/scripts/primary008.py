@@ -71,7 +71,9 @@ class Primary008(Machine008):
         dr = self.driver
         dr.press_keycode(4)
         time.sleep(1)
-        dr.find_element_by_id("com.soft.apk008v:id/main_centerImg").click()  ##008修改数据的图标
+        ##008修改数据的图标
+        WebDriverWait(dr, 30).until(lambda d: d.find_element_by_id("com.soft.apk008v:id/main_centerImg")).click()
+        time.sleep(1)
         WebDriverWait(dr, 30).until(lambda d: d.find_element_by_name("随机生成"))
         # WebDriverWait(dr, 5).until(lambda d: d.find_element_by_name("历史记录")).click()
         # time.sleep(0.5)
@@ -93,16 +95,18 @@ class Primary008(Machine008):
         return self.get_data_from_server()
 
     def get_data_from_server(self):
-        # find_value = lambda x: dr.find_element_by_xpath(
-        #     "//android.widget.TextView[contains(@text, '%s')]/following::*" % x).text
+        # find_value = lambda x: dr.find_element_by_xpath("//android.widget.TextView[contains(@text, '%s')]/following::*" % x).text
         dr = self.driver
-
         try:
             for x in range(50):
                 WebDriverWait(dr, 30).until(lambda d: d.find_element_by_name("从网络获取数据")).click()
                 try:
-                    WebDriverWait(dr, 30).until(lambda d: d.find_element_by_name("保存")).click()
+                    WebDriverWait(dr, 60).until(lambda d: d.find_element_by_name("保存")).click()
                 except TimeoutException:
+                    try:
+                        WebDriverWait(dr, 60).until(lambda d: d.find_element_by_name("确定")).click()
+                    except TimeoutException:
+                        pass
                     logging.info("fetch data from server timeout")
                     continue
                 # time.sleep(1)
