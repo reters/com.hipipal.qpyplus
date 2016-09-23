@@ -213,6 +213,65 @@ class MachineXHook(Machine):
         time.sleep(1)
         return self.do_task
 
+    #修改数据_随机
+    def modify_data_suiji(self):
+        dr = self.driver
+        dr.find_element_by_name("修改数据").click()
+        time.sleep(1)
+        xpath = "//android.widget.Spinner/android.widget.TextView"
+        spinners = dr.find_elements_by_xpath(xpath)
+        self.chanel = spinners[0].text
+        self.remain_day = spinners[1].text.split(":")[1]
+        #获取imei
+        edts = dr.find_elements_by_class_name("android.widget.EditText")
+        if edts.__len__() > 6:
+            oldimei = edts[9].text
+        else:
+            oldimei = edts[0].text
+
+        if self.remain_day == '1':
+            # dr.find_element_by_name("网络获取").click()
+            dr.find_element_by_name("随机数据").click()
+        elif self.remain_day == '0':
+            dr.press_keycode(4)
+            time.sleep(60)
+            return self.modify_data
+        else:
+            dr.find_element_by_name("本地获取").click()
+        try:
+            save = WebDriverWait(dr, 15).until(lambda d: d.find_element_by_name("保存"))
+            save.click()
+        except TimeoutException:
+            self.try_count += 1
+            if self.try_count <= 3:
+                dr.press_keycode(4)
+                time.sleep(1)
+                dr.press_keycode(4)
+                time.sleep(1)
+                return self.modify_data
+            self.try_count = 0
+            dr.press_keycode(4)
+            time.sleep(1)
+            dr.press_keycode(4)
+            time.sleep(1)
+            dr.find_element_by_name("网络获取失败,退出重新调VPN")
+        time.sleep(1)
+        #获取imei
+        edts = dr.find_elements_by_class_name("android.widget.EditText")
+        if edts.__len__() > 6:
+            self.imei = edts[9].text
+        else:
+            self.imei = edts[0].text
+        print('imei:' + self.imei)
+        # if oldimei == self.imei:
+        #     dr.press_keycode(4)
+        #     print("留存已跑完挂机300s")
+        #     time.sleep(300)
+        #     return self.modify_data
+        dr.press_keycode(4)
+        time.sleep(1)
+        return self.do_task
+
     #再激活
     def is0(self):
         dr = self.driver
