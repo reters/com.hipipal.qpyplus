@@ -34,6 +34,9 @@ class Machine008(Machine):
                             ]
         self.change = True
         self.again = False
+        self.NO_NEW_DAY = 2
+        self.begin_time_month = 0
+        self.begin_time_day = 0
     #进入008
     def enter_008(self):
         print("enter 008")
@@ -503,23 +506,34 @@ class Machine008(Machine):
                 break
         #添加留存记录
         add_end = False
+        find_day = self.NO_NEW_DAY
         for x in range(60):
             if add_end:
                 break
             WebDriverWait(dr, 10).until(lambda d: d.find_element_by_id("com.soft.apk008v:id/menu_remain_addRecord")).click()        #添加记录按钮
             time.sleep(0.5)
             # 获取昨天的时间datetime
-            yes_time = datetime.datetime.now() + datetime.timedelta(days=-x-1)
+            begin_time = datetime.datetime.now()
+            #设置留存开始时间
+            if self.begin_time_month:
+                begin_time = begin_time.replace(month=self.begin_time_month)
+            if self.begin_time_day:
+                begin_time = begin_time.replace(day=self.begin_time_day)
+            yes_time = begin_time + datetime.timedelta(days=-x-1)
             #滑动查找
             for i in range(10):
                 try:
                     WebDriverWait(dr, 2).until(lambda d: d.find_element_by_name(yes_time.strftime('%Y-%m-%d'))).click()
                     time.sleep(0.5)
                     edt = WebDriverWait(dr, 10).until(lambda d: d.find_element_by_class_name("android.widget.EditText"))
-                    edt.send_keys(self.remain_rate[x])
+                    if self.begin_time_month or self.begin_time_day:
+                        edt.send_keys(self.remain_rate[x+(datetime.datetime.now()-begin_time).days])
+                    else:
+                        edt.send_keys(self.remain_rate[x])
                     time.sleep(0.5)
                     WebDriverWait(dr, 10).until(lambda d: d.find_element_by_name("确定")).click()
                     time.sleep(0.5)
+                    find_day = self.NO_NEW_DAY
                     break
                 except TimeoutException:
                     dr.swipe(300, 800, 300, 500)
@@ -527,26 +541,12 @@ class Machine008(Machine):
                 if i == 9:
                     dr.press_keycode(4)
                     time.sleep(1)
-                    add_end = True
+                    if find_day == 0:
+                        add_end = True
+                    else:
+                        find_day -= 1
         dr.press_keycode(4)
         time.sleep(1)
-            #从第2天开始添加留存记录
-            # savedata = WebDriverWait(dr, 10).until(lambda d: d.find_elements_by_id("com.soft.apk008v:id/remain_select_item_title")) #获取数据数
-            # if x+1 < savedata.__len__():
-            #     savedata[x+1].click()
-            #     time.sleep(1)
-            #     edt = WebDriverWait(dr, 10).until(lambda d: d.find_element_by_class_name("android.widget.EditText"))
-            #     edt.send_keys(self.remain_rate[x])
-            #     time.sleep(1)
-            #     dr.find_element_by_name("确定").click()
-            #     time.sleep(1)
-            # else:
-            #     dr.press_keycode(4)
-            #     time.sleep(1)
-            #     dr.press_keycode(4)
-            #     time.sleep(1)
-            #     break
-        # return self.do_toolbox_task
 
     #备份程序
     def backup_app(self):
